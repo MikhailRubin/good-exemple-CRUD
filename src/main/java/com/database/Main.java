@@ -6,8 +6,9 @@ public class Main {
 
 
     public static void main(String[] args) throws PSQLException {
-            User user = new User();
-            user.updateUser();
+        Crud crud = new Crud();
+
+        crud.createTable();
 
     }
 }

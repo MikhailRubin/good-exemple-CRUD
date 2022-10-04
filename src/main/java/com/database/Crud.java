@@ -3,51 +3,53 @@ package com.database;
 import java.sql.*;
 import java.util.logging.Logger;
 
-
 public class Crud {
     private static final Logger logger = Logger.getLogger("Logger");
     private static final String USERNAME = "postgres";
     private static final String URL = "jdbc:postgresql://localhost:5432/test_base";
     private static final String PASSWORD = "1";
 
-    public void createTable() {
+    public void createTable(String nameTable) {
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              Statement statement = connection.createStatement();) {
             connection.setAutoCommit(false);
-            String createTableSQL = "CREATE TABLE users1111" +
-                    "(ID INT PRIMARY KEY ," +
-                    " FIRST_NAME VARCHAR(50), " +
-                    " LAST_NAME VARCHAR(50), " +
-                    " AGE INTEGER not null)";
+            String createTableSQL = "CREATE TABLE " + nameTable +
+                    "(id INT PRIMARY KEY," +
+                    " firstName VARCHAR(50), " +
+                    " lastName VARCHAR(50), " +
+                    " age INTEGER NOT NULL)";
             statement.execute(createTableSQL);
-            logger.info("Таблица создана!");
+            logger.info("Таблица " + nameTable +  " создана!");
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
         }
     }
 
-    public void deleteUserById() {
+    public void deleteUserById(int id) {
+        User user = new User(id, null, null, 0);
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM USERS WHERE id = ?;");) {
-            preparedStatement.setInt(1, 1);
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = ?");) {
+            preparedStatement.setInt(1, user.getId());
+            connection.setAutoCommit(false);
+            int result = preparedStatement.executeUpdate();
+            logger.info("Удалено пользователей с id " + id + ":" + result);
+            connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
         }
     }
 
-
     public void selectAllUser() {
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users");) {
             connection.setAutoCommit(false);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                long id = rs.getInt("id");
-                String firstName = rs.getString("firstName");
-                String lastName = rs.getString("lastName");
-                int age = rs.getInt("age");
+            ResultSet result = preparedStatement.executeQuery();
+            while (result.next()) {
+                long id = result.getInt("id");
+                String firstName = result.getString("first_name");
+                String lastName = result.getString("last_name");
+                int age = result.getInt("age");
                 logger.info(id + "," + firstName + "," + lastName + "," + age);
                 connection.commit();
             }
@@ -56,70 +58,73 @@ public class Crud {
         }
     }
 
-
-    public void selectUserById() {
+    public User selectUserById(int id) {
+            User user = null;
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE id=1");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE id= " + id);) {
             connection.setAutoCommit(false);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            if (rs.next()) {
-                int id = rs.getInt("id");
-                String firstName = rs.getString("first_name");
-                String lastName = rs.getString("last_name");
-                int age = rs.getInt("age");
-                logger.info(id + "," + firstName + "," + lastName + "," + age);
+            ResultSet result = preparedStatement.executeQuery();
+            if (result.next()) {
+                int idUser = result.getInt("id");
+                String firstName = result.getString("first_name");
+                String lastName = result.getString("last_name");
+                int age = result.getInt("age");
+                user = new User(idUser, firstName, lastName, age);
+                logger.info(idUser + "," + firstName + "," + lastName + "," + age);
             } else {
-                logger.info("Такого пользователя нет в бд");
+                logger.info("Пользователя с id " + id + " в БД нет");
             }
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
-        }
+        } return user;
     }
 
-
-    public void updateUser(User user) {
+    public User updateUser(int id, String firstName, String lastName, int age) {
+            User user = new User(id, firstName, lastName, age);
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE users SET  first_name = ?, last_name = ?, age = ? WHERE id = 5;")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE users SET  first_name = ?, last_name = ?, age = ? WHERE id = ?");) {
             connection.setAutoCommit(false);
-            preparedStatement.setString(1, "МИХАСЬ");
-            preparedStatement.setString(2, "ЛЫНЬКОУ");
-            preparedStatement.setInt(3, 19);
-
+            preparedStatement.setString(1, user.getFirstName());
+            preparedStatement.setString(2, user.getLastName());
+            preparedStatement.setInt(3, user.getAge());
+            preparedStatement.setInt(4, user.getId());
             preparedStatement.executeUpdate();
+            logger.info("Пользователь успешно обновлен");
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
-        }
+        } return user;
     }
 
     public void deleteAllUsers() {
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM USERS");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users");) {
             connection.setAutoCommit(false);
             preparedStatement.executeUpdate();
+            logger.info("Все пользователи удалены");
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
         }
     }
 
-    public void addUser() {
+    public User addUser(int id, String firstName, String lastName, int age) {
+        User user = new User(id, firstName, lastName, age);
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users" +
                      "  (id, first_name, last_name, age) VALUES " +
                      " (?, ?, ?, ?);")) {
             connection.setAutoCommit(false);
-            preparedStatement.setInt(1, 2);
-            preparedStatement.setString(2, "Tony111");
-            preparedStatement.setString(3, "Яё111");
-            preparedStatement.setInt(4, 25);
-            logger.info(String.valueOf(preparedStatement));
+            preparedStatement.setInt(1, user.getId());
+            preparedStatement.setString(2, user.getFirstName());
+            preparedStatement.setString(3, user.getLastName());
+            preparedStatement.setInt(4, user.getAge());
             preparedStatement.executeUpdate();
+            logger.info(user + " успешно добавлен");
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
-        }
-    }
+        } return user;
+    } 
 }

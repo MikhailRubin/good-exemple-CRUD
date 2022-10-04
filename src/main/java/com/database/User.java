@@ -1,6 +1,5 @@
 package com.database;
 
-
 import java.sql.*;
 
 public class User {
@@ -10,10 +9,10 @@ public class User {
     private String lastName;
     private int age;
 
-    public User(int id, String first_name, String last_name, int age) {
+    public User(int id, String firstName, String lastName, int age) {
         this.id = id;
-        this.firstName = first_name;
-        this.lastName = last_name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.age = age;
     }
 
@@ -25,20 +24,20 @@ public class User {
         this.id = id;
     }
 
-    public String getFirst_name() {
+    public String getFirstName() {
         return firstName;
     }
 
-    public void setFirst_name(String first_name) {
-        this.firstName = first_name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getLast_name() {
+    public String getLastName() {
         return lastName;
     }
 
-    public void setLast_name(String last_name) {
-        this.lastName = last_name;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public int getAge() {

@@ -1,6 +1,9 @@
 package com.database;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class Crud {
@@ -19,7 +22,7 @@ public class Crud {
                     " lastName VARCHAR(50), " +
                     " age INTEGER NOT NULL)";
             statement.execute(createTableSQL);
-            logger.info("Таблица " + nameTable +  " создана!");
+            logger.info("Таблица " + nameTable + " создана!");
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
@@ -27,10 +30,9 @@ public class Crud {
     }
 
     public void deleteUserById(int id) {
-        User user = new User(id, null, null, 0);
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id = ?");) {
-            preparedStatement.setInt(1, user.getId());
+            preparedStatement.setInt(1, id);
             connection.setAutoCommit(false);
             int result = preparedStatement.executeUpdate();
             logger.info("Удалено пользователей с id " + id + ":" + result);
@@ -40,26 +42,32 @@ public class Crud {
         }
     }
 
-    public void selectAllUser() {
+    public List<User> selectAllUser() {
+        List<User> users = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users");) {
             connection.setAutoCommit(false);
             ResultSet result = preparedStatement.executeQuery();
             while (result.next()) {
-                long id = result.getInt("id");
+                int id = result.getInt("id");
                 String firstName = result.getString("first_name");
                 String lastName = result.getString("last_name");
                 int age = result.getInt("age");
+                User user = new User(id, firstName, lastName, age);
+                while (result == null) {
+                    users.add(user);
+                }
                 logger.info(id + "," + firstName + "," + lastName + "," + age);
                 connection.commit();
             }
         } catch (SQLException e) {
             logger.info(e.getMessage());
         }
+        return users;
     }
 
     public User selectUserById(int id) {
-            User user = null;
+        User user = null;
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE id= " + id);) {
             connection.setAutoCommit(false);
@@ -77,11 +85,11 @@ public class Crud {
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
-        } return user;
+        }
+        return user;
     }
 
-    public User updateUser(int id, String firstName, String lastName, int age) {
-            User user = new User(id, firstName, lastName, age);
+    public User updateUser(User user) {
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement("UPDATE users SET  first_name = ?, last_name = ?, age = ? WHERE id = ?");) {
             connection.setAutoCommit(false);
@@ -94,7 +102,8 @@ public class Crud {
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
-        } return user;
+        }
+        return user;
     }
 
     public void deleteAllUsers() {
@@ -125,6 +134,7 @@ public class Crud {
             connection.commit();
         } catch (SQLException e) {
             logger.info(e.getMessage());
-        } return user;
-    } 
+        }
+        return user;
+    }
 }

@@ -8,10 +8,10 @@ public class Main {
         Crud crud = new Crud();
 
         //crud.createTable("newTable");
-        crud.addUser(new User(17, "ХУЙМАН", "ЛЫСЫЙ", 40));
+        //crud.addUser(new User(17, "ХУЙМАН", "ЛЫСЫЙ", 40));
         //crud.updateUser(new User(29, "САШКА", "РЫЖИК", 46));
         //crud.selectUserById(4);
-        crud.selectAllUser();
+        //crud.selectAllUser();
         //crud.deleteUserById(1);
         //crud.deleteAllUsers();
     }

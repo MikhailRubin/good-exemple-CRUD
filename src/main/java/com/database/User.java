@@ -1,7 +1,5 @@
 package com.database;
 
-import java.sql.*;
-
 public class User {
 
     private int id;

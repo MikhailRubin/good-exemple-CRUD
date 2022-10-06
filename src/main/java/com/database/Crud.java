@@ -117,8 +117,7 @@ public class Crud {
         }
     }
 
-    public User addUser(int id, String firstName, String lastName, int age) {
-        User user = new User(id, firstName, lastName, age);
+    public User addUser(User user) {
         try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users" +
                      "  (id, first_name, last_name, age) VALUES " +

@@ -6,6 +6,7 @@ public class User {
     private String firstName;
     private String lastName;
     private int age;
+    private Address address;
 
     public User(int id, String firstName, String lastName, int age) {
         this.id = id;
@@ -55,5 +56,4 @@ public class User {
                 ", age=" + age +
                 '}';
     }
-
 }
